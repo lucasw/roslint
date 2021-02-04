@@ -67,6 +67,18 @@ function(roslint_python)
   roslint_custom("${ROSLINT_PYTHON_CMD}" "${ROSLINT_PYTHON_OPTS}" ${ARGN})
 endfunction()
 
+# Run cargo clippy on the package.
+# TODO(lucasw) I can drop this directly into the package CMakeLists.txt, but it
+# doesn't find it here- does something besides roslint need to be rebuilt?
+function(roslint_rust)
+  # TODO(lucasw) can't specify individual files to clippy?
+  _roslint_create_targets()
+  add_custom_command(TARGET roslint_${PROJECT_NAME} POST_BUILD
+                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                     COMMAND ${CATKIN_ENV} cargo clippy -- -D warnings VERBATIM)
+
+endfunction()
+
 # Run roslint for this package as a test.
 function(roslint_add_test)
   catkin_run_tests_target("roslint" "package" "roslint-${PROJECT_NAME}.xml"
